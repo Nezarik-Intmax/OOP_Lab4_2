@@ -1,4 +1,5 @@
 #pragma once
+#include "Model.h"
 
 namespace OOPLab42 {
 
@@ -47,6 +48,7 @@ namespace OOPLab42 {
 	private: System::Windows::Forms::TextBox^ textBox3;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown3;
 	private: System::Windows::Forms::Label^ label3;
+
 
 	private:
 		/// <summary>
@@ -98,6 +100,7 @@ namespace OOPLab42 {
 			this->numericUpDown1->Name = L"numericUpDown1";
 			this->numericUpDown1->Size = System::Drawing::Size(120, 20);
 			this->numericUpDown1->TabIndex = 1;
+			this->numericUpDown1->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown1_ValueChanged);
 			// 
 			// textBox1
 			// 
@@ -105,13 +108,16 @@ namespace OOPLab42 {
 			this->textBox1->Name = L"textBox1";
 			this->textBox1->Size = System::Drawing::Size(120, 20);
 			this->textBox1->TabIndex = 2;
+			this->textBox1->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox1_TextChanged);
 			// 
 			// trackBar1
 			// 
 			this->trackBar1->Location = System::Drawing::Point(147, 285);
+			this->trackBar1->Maximum = 100;
 			this->trackBar1->Name = L"trackBar1";
 			this->trackBar1->Size = System::Drawing::Size(120, 45);
 			this->trackBar1->TabIndex = 3;
+			this->trackBar1->Scroll += gcnew System::EventHandler(this, &MyForm::trackBar1_Scroll);
 			// 
 			// label2
 			// 
@@ -127,9 +133,11 @@ namespace OOPLab42 {
 			// trackBar2
 			// 
 			this->trackBar2->Location = System::Drawing::Point(285, 285);
+			this->trackBar2->Maximum = 100;
 			this->trackBar2->Name = L"trackBar2";
 			this->trackBar2->Size = System::Drawing::Size(120, 45);
 			this->trackBar2->TabIndex = 7;
+			this->trackBar2->Scroll += gcnew System::EventHandler(this, &MyForm::trackBar2_Scroll);
 			// 
 			// textBox2
 			// 
@@ -137,6 +145,7 @@ namespace OOPLab42 {
 			this->textBox2->Name = L"textBox2";
 			this->textBox2->Size = System::Drawing::Size(120, 20);
 			this->textBox2->TabIndex = 6;
+			this->textBox2->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox2_TextChanged);
 			// 
 			// numericUpDown2
 			// 
@@ -144,13 +153,16 @@ namespace OOPLab42 {
 			this->numericUpDown2->Name = L"numericUpDown2";
 			this->numericUpDown2->Size = System::Drawing::Size(120, 20);
 			this->numericUpDown2->TabIndex = 5;
+			this->numericUpDown2->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown2_ValueChanged);
 			// 
 			// trackBar3
 			// 
 			this->trackBar3->Location = System::Drawing::Point(424, 285);
+			this->trackBar3->Maximum = 100;
 			this->trackBar3->Name = L"trackBar3";
 			this->trackBar3->Size = System::Drawing::Size(120, 45);
 			this->trackBar3->TabIndex = 11;
+			this->trackBar3->Scroll += gcnew System::EventHandler(this, &MyForm::trackBar3_Scroll);
 			// 
 			// textBox3
 			// 
@@ -158,6 +170,7 @@ namespace OOPLab42 {
 			this->textBox3->Name = L"textBox3";
 			this->textBox3->Size = System::Drawing::Size(120, 20);
 			this->textBox3->TabIndex = 10;
+			this->textBox3->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox3_TextChanged);
 			// 
 			// numericUpDown3
 			// 
@@ -165,6 +178,7 @@ namespace OOPLab42 {
 			this->numericUpDown3->Name = L"numericUpDown3";
 			this->numericUpDown3->Size = System::Drawing::Size(120, 20);
 			this->numericUpDown3->TabIndex = 9;
+			this->numericUpDown3->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown3_ValueChanged);
 			// 
 			// label3
 			// 
@@ -196,6 +210,7 @@ namespace OOPLab42 {
 			this->Controls->Add(this->label1);
 			this->Name = L"MyForm";
 			this->Text = L"MyForm";
+			this->Load += gcnew System::EventHandler(this, &MyForm::MyForm_Load);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar2))->EndInit();
@@ -207,5 +222,53 @@ namespace OOPLab42 {
 
 		}
 #pragma endregion
-	};
+	MyModel^ a;
+	MyModel^ b;
+	MyModel^ c;
+	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
+		a = gcnew MyModel(0, 0, 100, numericUpDown1, textBox1);
+		a->SetTrackBar(trackBar1);
+		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
+		b = gcnew MyModel(0, 0, 100, numericUpDown2, textBox2, trackBar2);
+		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
+		c = gcnew MyModel(0, 0, 100, numericUpDown3, textBox3, trackBar3);
+		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
+	}
+	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e){
+		a->SetValue(Convert::ToInt32(numericUpDown1->Value));
+	}
+	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e){
+		a->SetValue(Convert::ToInt32(textBox1->Text));
+	}
+	private: System::Void trackBar1_Scroll(System::Object^ sender, System::EventArgs^ e){
+		a->SetValue(Convert::ToInt32(trackBar1->Value));
+	}
+	private: System::Void numericUpDown2_ValueChanged(System::Object^ sender, System::EventArgs^ e){
+		b->SetValue(Convert::ToInt32(numericUpDown2->Value));
+	}
+	private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e){
+		b->SetValue(Convert::ToInt32(textBox2->Text));
+	}
+	private: System::Void trackBar2_Scroll(System::Object^ sender, System::EventArgs^ e){
+		b->SetValue(Convert::ToInt32(trackBar2->Value));
+	}
+	private: System::Void numericUpDown3_ValueChanged(System::Object^ sender, System::EventArgs^ e){
+		c->SetValue(Convert::ToInt32(numericUpDown3->Value));
+	}
+	private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e){
+		c->SetValue(Convert::ToInt32(textBox3->Text));
+	}
+	private: System::Void trackBar3_Scroll(System::Object^ sender, System::EventArgs^ e){
+		c->SetValue(Convert::ToInt32(trackBar3->Value));
+	}
+	void UpdateData(System::Object^ sender, System::EventArgs^ e){
+		MyModel^ sender1 = (MyModel^)sender;
+		if(sender1->GetNumericUpDown() != nullptr)
+			sender1->GetNumericUpDown()->Value = sender1->GetValue();
+		if(sender1->GetTextBox() != nullptr)
+			sender1->GetTextBox()->Text = sender1->GetValue().ToString();
+		if(sender1->GetTrackBar() != nullptr)
+			sender1->GetTrackBar()->Value = sender1->GetValue();
+	}
+};
 }
