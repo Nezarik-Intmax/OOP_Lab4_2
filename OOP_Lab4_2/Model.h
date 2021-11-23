@@ -26,17 +26,11 @@ public:
 	MyModel^ observersMin;
 	MyModel^ observersMax;
 	MyModel():value(0), minV(0), maxV(100), allowBehavior(true){}
-	MyModel(char name, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):name(name), minV(0), maxV(100), allowBehavior(true){
+	MyModel(char name, bool ab, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):name(name), minV(0), maxV(100), allowBehavior(ab){
 		numericUpDown = num;
 		textBox = txt;
 		trackBar = trck;
 		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name.ToString() + ".txt")));
-	}
-	MyModel(char name, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), minV(minV), maxV(maxV), name(name), allowBehavior(true){
-		numericUpDown = num;
-		textBox = txt;
-		trackBar = trck;
-		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name.ToString()+".txt")));
 	}
 	MyModel(char name, int value, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), minV(minV), maxV(maxV), name(name), allowBehavior(true){
 		numericUpDown = num;
@@ -44,7 +38,7 @@ public:
 		trackBar = trck;
 	}
 	void SetValue(int a){
-		if((a >= minV)&&(a <= maxV))
+		if((a >= minV)&&(a <= maxV)||allowBehavior)
 			value = a;
 		if(observers != nullptr)
 			observers->Invoke(this, nullptr);
@@ -56,8 +50,16 @@ public:
 		System::IO::File::WriteAllText(name.ToString() + ".txt", value.ToString());
 
 	}
-	void SetMax(int a){maxV = a;}
-	void SetMin(int a){minV = a;}
+	void SetMax(int a){
+		maxV = a;
+		if(value > maxV)
+			SetValue(maxV);
+	}
+	void SetMin(int a){
+		minV = a;
+		if(value < minV)
+			SetValue(minV);
+	}
 	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num){
 		this->numericUpDown = num;
 	}

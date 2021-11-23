@@ -226,17 +226,17 @@ namespace OOPLab42 {
 	MyModel^ b;
 	MyModel^ c;
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
-		a = gcnew MyModel('A', numericUpDown1, textBox1, trackBar1);
+		a = gcnew MyModel('A', true, numericUpDown1, textBox1, trackBar1);
 		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		a->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		a->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
 
-		b = gcnew MyModel('B', numericUpDown2, textBox2, trackBar2);
+		b = gcnew MyModel('B', false, numericUpDown2, textBox2, trackBar2);
 		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		b->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		b->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
 
-		c = gcnew MyModel('C', numericUpDown3, textBox3, trackBar3);
+		c = gcnew MyModel('C', true, numericUpDown3, textBox3, trackBar3);
 		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		c->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		c->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
