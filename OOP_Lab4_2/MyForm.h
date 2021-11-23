@@ -226,23 +226,28 @@ namespace OOPLab42 {
 	MyModel^ b;
 	MyModel^ c;
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
-		a = gcnew MyModel('A', 0, 0, 25, numericUpDown1, textBox1, trackBar1);
+		a = gcnew MyModel('A', numericUpDown1, textBox1, trackBar1);
 		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		a->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		a->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
 
-		b = gcnew MyModel('B', 0, 25, 75, numericUpDown2, textBox2, trackBar2);
-		b->observersMin = a;
-		b->observersMax = c;
+		b = gcnew MyModel('B', numericUpDown2, textBox2, trackBar2);
 		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		b->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		b->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
 
-		c = gcnew MyModel('C', 0, 75, 100, numericUpDown3, textBox3, trackBar3);
-		c->observersMin = b;
+		c = gcnew MyModel('C', numericUpDown3, textBox3, trackBar3);
 		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		c->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		c->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
+
+		a->observersMax = b;
+		b->observersMin = a;
+		b->observersMax = c;
+		c->observersMin = b;
+		a->SetValue(a->GetValue());
+		b->SetValue(b->GetValue());
+		c->SetValue(c->GetValue());
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(numericUpDown1->Value));
