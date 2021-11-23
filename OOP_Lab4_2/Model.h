@@ -1,31 +1,94 @@
 #pragma once
+#include <Windows.h>
+#include <stdio.h>
+using namespace System;
+using namespace System::IO;
+using namespace System::Windows::Forms;
+ref class MyEventArgs : System::EventArgs{
+public:
+	int value;
+	MyEventArgs(int value):value(value){}
+};
+
 ref class MyModel{
 private:
-	int value, max, min;
+	int value, maxV, minV;
+	char name;
+	FILE* f;
 	System::Windows::Forms::NumericUpDown^ numericUpDown;
 	System::Windows::Forms::TextBox^ textBox;
 	System::Windows::Forms::TrackBar^ trackBar;
 public:
 	System::EventHandler^ observers;
-	MyModel():value(0), min(0), max(100){}
-	MyModel(int value):value(value), min(0), max(100){}
-	MyModel(int value, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt):value(value), numericUpDown(num), textBox(txt){}
-	MyModel(int value, int min, int max):value(value), min(min), max(max){}
-	MyModel(int value, int min, int max, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt):value(value), min(min), max(max){
-		numericUpDown = num;
-		textBox = txt;
+	System::EventHandler^ observerMin;
+	System::EventHandler^ observerMax;
+	MyModel^ observersMin;
+	MyModel^ observersMax;
+	MyModel():value(0), minV(0), maxV(100){
+		f = fopen(strcat((char*)name, ".txt"), "r");
+		if(f != nullptr)
+			fscanf(f, "%i", value);
+		else{
+			f = fopen(strcat((char*)name, ".txt"), "w");
+			fprintf(f, "%i", value);
+		}
 	}
-	MyModel(int value, int min, int max, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), min(min), max(max){
+	MyModel(char name, int value):value(value), minV(0), maxV(100){
+		f = fopen(strcat((char*)name, ".txt"), "r");
+		if(f != nullptr)
+			fscanf(f, "%i", value);
+		else{
+			f = fopen(strcat((char*)name, ".txt"), "w");
+			fprintf(f, "%i", value);
+		}
+	}
+	MyModel(char name, int value, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt):value(value), numericUpDown(num), textBox(txt){
+		f = fopen(strcat((char*)name, ".txt"), "r");
+		if(f != nullptr)
+			fscanf(f, "%i", value);
+		else{
+			f = fopen(strcat((char*)name, ".txt"), "w");
+			fprintf(f, "%i", value);
+		}
+	}
+	MyModel(char name, int value, int minV, int maxV):value(value), minV(minV), maxV(maxV){}
+	MyModel(char name, int value, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt):value(value), minV(minV), maxV(maxV){
 		numericUpDown = num;
 		textBox = txt;
-		trackBar = trck;
+		f = fopen(strcat((char*)name, ".txt"), "r");
+		if(f != nullptr)
+			fscanf(f, "%i", value);
+		else{
+			f = fopen(strcat((char*)name, ".txt"), "w");
+			fprintf(f, "%i", value);
+		}
+	}
+	MyModel(char name, int value, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), minV(minV), maxV(maxV){
+		numericUpDown = num;
+		textBox = txt;
+		trackBar = trck; 
+		SaveFileDialog^ saveFileDialog1 = gcnew SaveFileDialog();
+		saveFileDialog1->Filter = "TextFiles (*.txt)|*.txt|All files(*.*)|*.*";
+		saveFileDialog1->FilterIndex = 1;
+		saveFileDialog1->FileName = name.ToString();
+		saveFileDialog1->RestoreDirectory = true;
+		if(saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK){
+			System::IO::File::WriteAllText(saveFileDialog1->FileName, value.ToString());
+		}
 	}
 	void SetValue(int a){
-		if((a >= min)&&(a <= max))
+		if((a >= minV)&&(a <= maxV))
 			value = a;
-		//UpdateData();
 		observers->Invoke(this, nullptr);
+		if(observersMax != nullptr)
+			observerMin->Invoke(observersMax, gcnew MyEventArgs(value));
+		if(observersMin != nullptr)
+			observerMax->Invoke(observersMin, gcnew MyEventArgs(value));
+		f = fopen(strcat((char*)name, ".txt"), "w");
+		fprintf(f, "%i", value);
 	}
+	void SetMax(int a){maxV = a;}
+	void SetMin(int a){minV = a;}
 	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num){
 		this->numericUpDown = num;
 	}

@@ -128,7 +128,7 @@ namespace OOPLab42 {
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(56, 55);
 			this->label2->TabIndex = 4;
-			this->label2->Text = L"A";
+			this->label2->Text = L"B";
 			// 
 			// trackBar2
 			// 
@@ -187,9 +187,9 @@ namespace OOPLab42 {
 				static_cast<System::Byte>(204)));
 			this->label3->Location = System::Drawing::Point(457, 157);
 			this->label3->Name = L"label3";
-			this->label3->Size = System::Drawing::Size(56, 55);
+			this->label3->Size = System::Drawing::Size(59, 55);
 			this->label3->TabIndex = 8;
-			this->label3->Text = L"A";
+			this->label3->Text = L"C";
 			// 
 			// MyForm
 			// 
@@ -226,13 +226,23 @@ namespace OOPLab42 {
 	MyModel^ b;
 	MyModel^ c;
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
-		a = gcnew MyModel(0, 0, 100, numericUpDown1, textBox1);
-		a->SetTrackBar(trackBar1);
+		a = gcnew MyModel('A', 0, 0, 25, numericUpDown1, textBox1, trackBar1);
 		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		b = gcnew MyModel(0, 0, 100, numericUpDown2, textBox2, trackBar2);
+		a->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
+		a->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
+
+		b = gcnew MyModel('B', 0, 25, 75, numericUpDown2, textBox2, trackBar2);
+		b->observersMin = a;
+		b->observersMax = c;
 		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		c = gcnew MyModel(0, 0, 100, numericUpDown3, textBox3, trackBar3);
+		b->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
+		b->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
+
+		c = gcnew MyModel('C', 0, 75, 100, numericUpDown3, textBox3, trackBar3);
+		c->observersMin = b;
 		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
+		c->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
+		c->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(numericUpDown1->Value));
@@ -269,6 +279,14 @@ namespace OOPLab42 {
 			sender1->GetTextBox()->Text = sender1->GetValue().ToString();
 		if(sender1->GetTrackBar() != nullptr)
 			sender1->GetTrackBar()->Value = sender1->GetValue();
+	}
+	void UpdateMin(System::Object^ sender, System::EventArgs^ e){
+		MyModel^ sender1 = (MyModel^)sender;
+		sender1->SetMin(((MyEventArgs^)e)->value);
+	}
+	void UpdateMax(System::Object^ sender, System::EventArgs^ e){
+		MyModel^ sender1 = (MyModel^)sender;
+		sender1->SetMax(((MyEventArgs^)e)->value);
 	}
 };
 }
