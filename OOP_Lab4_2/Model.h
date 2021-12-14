@@ -6,71 +6,71 @@ using namespace System::IO;
 using namespace System::Windows::Forms;
 ref class MyEventArgs : System::EventArgs{
 public:
-	int value;
-	MyEventArgs(int value):value(value){}
+	int value, ind;
+	MyEventArgs(int value, int ind):value(value),ind(ind){}
 };
 
 ref class MyModel{
 private:
-	int value, maxV, minV;
-	char name;
-	bool allowBehavior;
 	FILE* f;
-	System::Windows::Forms::NumericUpDown^ numericUpDown;
-	System::Windows::Forms::TextBox^ textBox;
-	System::Windows::Forms::TrackBar^ trackBar;
+	array<NumericUpDown^>^ numericUpDown;
+	array<TextBox^>^ textBox;
+	array<TrackBar^>^ trackBar;
+	array<int>^ value;
+	array<int>^ maxV;
+	array<int>^ minV;
+	array<char>^ name;
+	array<bool>^ allowBehavior;
 public:
 	System::EventHandler^ observers;
 	System::EventHandler^ observerMin;
 	System::EventHandler^ observerMax;
 	MyModel^ observersMin;
 	MyModel^ observersMax;
-	MyModel():value(0), minV(0), maxV(100), allowBehavior(true){}
-	MyModel(char name, bool ab, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):name(name), minV(0), maxV(100), allowBehavior(ab){
-		numericUpDown = num;
-		textBox = txt;
-		trackBar = trck;
-		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name.ToString() + ".txt")));
+	MyModel(int n){
+		numericUpDown = gcnew array<NumericUpDown^>(n);
+		textBox = gcnew array<TextBox^>(n);
+		trackBar = gcnew array<TrackBar^>(n);
+		value = gcnew array<int>(n);
+		maxV = gcnew array<int>(n);
+		minV = gcnew array<int>(n);
+		name = gcnew array<char>(n);
+		allowBehavior = gcnew array<bool>(n);
 	}
-	MyModel(char name, int value, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), minV(minV), maxV(maxV), name(name), allowBehavior(true){
-		numericUpDown = num;
-		textBox = txt;
-		trackBar = trck;
-	}
-	void SetValue(int a){
-		if((a >= minV)&&(a <= maxV)||allowBehavior)
-			value = a;
+	void SetValue(int a, int ind){
+		if((a >= minV[ind])&&(a <= maxV[ind])||allowBehavior)
+			value[ind] = a;
 		if(observers != nullptr)
-			observers->Invoke(this, nullptr);
+			observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
 		if(observersMax != nullptr)
-			observerMin->Invoke(observersMax, gcnew MyEventArgs(value));
+			observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
 		if(observersMin != nullptr)
-			observerMax->Invoke(observersMin, gcnew MyEventArgs(value));
-		name.ToString();
-		System::IO::File::WriteAllText(name.ToString() + ".txt", value.ToString());
+			observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+		name[ind].ToString();
+		System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
 
 	}
-	void SetMax(int a){
-		maxV = a;
-		if(value > maxV)
-			SetValue(maxV);
+	void SetMax(int a, int ind){
+		maxV[ind] = a;
+		if(value[ind] > maxV[ind])
+			SetValue(maxV[ind], ind);
 	}
-	void SetMin(int a){
-		minV = a;
-		if(value < minV)
-			SetValue(minV);
+	void SetMin(int a, int ind){
+		minV[ind] = a;
+		if(value[ind] < minV[ind])
+			SetValue(minV[ind], ind);
 	}
-	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num){
-		this->numericUpDown = num;
+	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num, int ind){
+		this->numericUpDown[ind] = num;
 	}
-	void SetTextBox(System::Windows::Forms::TextBox^ txt){
-		this->textBox = txt;
+	void SetTextBox(System::Windows::Forms::TextBox^ txt, int ind){
+		this->textBox[ind] = txt;
 	}
-	void SetTrackBar(System::Windows::Forms::TrackBar^ trackBar){
-		this->trackBar = trackBar;
+	void SetTrackBar(System::Windows::Forms::TrackBar^ trackBar, int ind){
+		this->trackBar[ind] = trackBar;
 	}
-	int GetValue(){return value;}
-	System::Windows::Forms::NumericUpDown^ GetNumericUpDown(){return this->numericUpDown;}
-	System::Windows::Forms::TextBox^ GetTextBox(){return this->textBox;}
-	System::Windows::Forms::TrackBar^ GetTrackBar(){return this->trackBar;}
+	int GetValue(int ind){return value[ind];}
+	System::Windows::Forms::NumericUpDown^ GetNumericUpDown(int ind){return this->numericUpDown[ind];}
+	System::Windows::Forms::TextBox^ GetTextBox(int ind){return this->textBox[ind];}
+	System::Windows::Forms::TrackBar^ GetTrackBar(int ind){return this->trackBar[ind];}
 };
