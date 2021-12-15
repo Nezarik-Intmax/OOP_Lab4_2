@@ -230,24 +230,24 @@ namespace OOPLab42 {
 		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		a->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		a->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		/*b = gcnew MyModel('B', false, numericUpDown2, textBox2, trackBar2);
-		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		b->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
-		b->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		c = gcnew MyModel('C', true, numericUpDown3, textBox3, trackBar3);
-		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		c->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
-		c->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		a->observersMax = b;
-		b->observersMin = a;
-		b->observersMax = c;
-		c->observersMin = b;*/
-		a->SetValue(a->GetValue(0), 0);
-		b->SetValue(b->GetValue(1), 1);
-		c->SetValue(c->GetValue(2), 2);
+		a->SetNumericUpDown(numericUpDown1, 0);
+		a->SetNumericUpDown(numericUpDown2, 1);
+		a->SetNumericUpDown(numericUpDown3, 2);
+		a->SetTextBox(textBox1, 0);
+		a->SetTextBox(textBox2, 1);
+		a->SetTextBox(textBox3, 2);
+		a->SetTrackBar(trackBar1, 0);
+		a->SetTrackBar(trackBar2, 1);
+		a->SetTrackBar(trackBar3, 2);
+		a->SetAllowBehavior(true, 0);
+		a->SetAllowBehavior(false, 1);
+		a->SetAllowBehavior(true, 2);
+		a->SetName('C', 2);
+		a->SetName('B', 1);
+		a->SetName('A', 0);
+		a->SetFromFile(2);
+		a->SetFromFile(1);
+		a->SetFromFile(0);
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(numericUpDown1->Value), 0);
@@ -259,22 +259,22 @@ namespace OOPLab42 {
 		a->SetValue(Convert::ToInt32(trackBar1->Value), 0);
 	}
 	private: System::Void numericUpDown2_ValueChanged(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(numericUpDown2->Value), 1);
+		a->SetValue(Convert::ToInt32(numericUpDown2->Value), 1);
 	}
 	private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(textBox2->Text), 1);
+		a->SetValue(Convert::ToInt32(textBox2->Text), 1);
 	}
 	private: System::Void trackBar2_Scroll(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(trackBar2->Value), 1);
+		a->SetValue(Convert::ToInt32(trackBar2->Value), 1);
 	}
 	private: System::Void numericUpDown3_ValueChanged(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(numericUpDown3->Value), 3);
+		a->SetValue(Convert::ToInt32(numericUpDown3->Value), 2);
 	}
 	private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(textBox3->Text), 3);
+		a->SetValue(Convert::ToInt32(textBox3->Text), 2);
 	}
 	private: System::Void trackBar3_Scroll(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(trackBar3->Value), 3);
+		a->SetValue(Convert::ToInt32(trackBar3->Value), 2);
 	}
 	void UpdateData(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
@@ -287,11 +287,15 @@ namespace OOPLab42 {
 	}
 	void UpdateMin(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		sender1->SetMin(((MyEventArgs^)e)->value, ((MyEventArgs^)e)->ind);
+		MyEventArgs^ ev = (MyEventArgs^)e;
+		if(!sender1->SetMin(ev->value, ev->ind+1))
+			sender1->SetValue(sender1->GetValue(ev->ind+1),ev->ind);
 	}
 	void UpdateMax(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		sender1->SetMax(((MyEventArgs^)e)->value, ((MyEventArgs^)e)->ind);
+		MyEventArgs^ ev = (MyEventArgs^)e;
+		if(!sender1->SetMax(ev->value, ev->ind - 1))
+			sender1->SetValue(sender1->GetValue(ev->ind + 1), ev->ind);
 	}
 };
 }

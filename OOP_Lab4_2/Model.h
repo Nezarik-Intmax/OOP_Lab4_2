@@ -12,6 +12,7 @@ public:
 
 ref class MyModel{
 private:
+	int N;
 	FILE* f;
 	array<NumericUpDown^>^ numericUpDown;
 	array<TextBox^>^ textBox;
@@ -25,52 +26,85 @@ public:
 	System::EventHandler^ observers;
 	System::EventHandler^ observerMin;
 	System::EventHandler^ observerMax;
-	MyModel^ observersMin;
-	MyModel^ observersMax;
 	MyModel(int n){
+		N = n;
 		numericUpDown = gcnew array<NumericUpDown^>(n);
 		textBox = gcnew array<TextBox^>(n);
 		trackBar = gcnew array<TrackBar^>(n);
 		value = gcnew array<int>(n);
-		maxV = gcnew array<int>(n);
-		minV = gcnew array<int>(n);
 		name = gcnew array<char>(n);
 		allowBehavior = gcnew array<bool>(n);
 	}
 	void SetValue(int a, int ind){
-		if((a >= minV[ind])&&(a <= maxV[ind])||allowBehavior)
-			value[ind] = a;
+		if (ind < N-1 && ind > 0){
+			if(((a >= value[ind-1])&&(a <= value[ind + 1]))||allowBehavior[ind])
+				value[ind] = a;
+		}else if(ind < N-1){
+			if(a <= value[ind + 1] || allowBehavior[ind])
+				value[ind] = a;
+		} else if(ind > 0){
+			if(a >= value[ind - 1] || allowBehavior[ind])
+				value[ind] = a;
+		}
 		if(observers != nullptr)
 			observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		if(observersMax != nullptr)
-			observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		if(observersMin != nullptr)
-			observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		name[ind].ToString();
+		observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+		observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
 		System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
-
 	}
-	void SetMax(int a, int ind){
-		maxV[ind] = a;
-		if(value[ind] > maxV[ind])
-			SetValue(maxV[ind], ind);
+	void SetFromFile(int ind){
+		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name[ind].ToString() + ".txt")), ind);
 	}
-	void SetMin(int a, int ind){
-		minV[ind] = a;
-		if(value[ind] < minV[ind])
-			SetValue(minV[ind], ind);
+	bool SetMax(int a, int ind){
+		if(ind < N - 1 && ind > 0)
+			if(value[ind] >= a){
+				SetValue(a, ind);
+				return true;
+			}
+		return false;
+	}
+	bool SetMin(int a, int ind){
+		if(ind < N - 1 && ind > 0)
+			if(value[ind] <= a){
+				SetValue(a, ind);
+				return true;
+			}
+		return false;
+	}
+	void SetAllowBehavior(bool s, int ind){
+		if(ind < N && ind >= 0)
+			allowBehavior[ind] = s;
+	}
+	void SetName(char s, int ind){
+		if(ind < N && ind >= 0)
+			name[ind] = s;
 	}
 	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num, int ind){
-		this->numericUpDown[ind] = num;
+		if(ind < N && ind >= 0)
+			this->numericUpDown[ind] = num;
 	}
 	void SetTextBox(System::Windows::Forms::TextBox^ txt, int ind){
-		this->textBox[ind] = txt;
+		if(ind < N && ind >= 0)
+			this->textBox[ind] = txt;
 	}
 	void SetTrackBar(System::Windows::Forms::TrackBar^ trackBar, int ind){
-		this->trackBar[ind] = trackBar;
+		if(ind < N && ind >= 0)
+			this->trackBar[ind] = trackBar;
 	}
-	int GetValue(int ind){return value[ind];}
-	System::Windows::Forms::NumericUpDown^ GetNumericUpDown(int ind){return this->numericUpDown[ind];}
-	System::Windows::Forms::TextBox^ GetTextBox(int ind){return this->textBox[ind];}
-	System::Windows::Forms::TrackBar^ GetTrackBar(int ind){return this->trackBar[ind];}
+	int GetValue(int ind){
+		if(ind < N && ind >= 0)
+			return value[ind];
+	}
+	System::Windows::Forms::NumericUpDown^ GetNumericUpDown(int ind){
+		if(ind < N && ind >= 0)
+			return this->numericUpDown[ind];
+	}
+	System::Windows::Forms::TextBox^ GetTextBox(int ind){
+		if(ind < N && ind >= 0)
+			return this->textBox[ind];
+	}
+	System::Windows::Forms::TrackBar^ GetTrackBar(int ind){
+		if(ind < N && ind >= 0)
+			return this->trackBar[ind];
+	}
 };
