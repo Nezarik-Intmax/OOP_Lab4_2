@@ -226,72 +226,98 @@ namespace OOPLab42 {
 	MyModel^ b;
 	MyModel^ c;
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
-		a = gcnew MyModel('A', true, numericUpDown1, textBox1, trackBar1);
+		a = gcnew MyModel(3);
 		a->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
 		a->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
 		a->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		b = gcnew MyModel('B', false, numericUpDown2, textBox2, trackBar2);
-		b->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		b->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
-		b->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		c = gcnew MyModel('C', true, numericUpDown3, textBox3, trackBar3);
-		c->observers += gcnew System::EventHandler(this, &MyForm::UpdateData);
-		c->observerMax += gcnew System::EventHandler(this, &MyForm::UpdateMax);
-		c->observerMin += gcnew System::EventHandler(this, &MyForm::UpdateMin);
-
-		a->observersMax = b;
-		b->observersMin = a;
-		b->observersMax = c;
-		c->observersMin = b;
-		a->SetValue(a->GetValue());
-		b->SetValue(b->GetValue());
-		c->SetValue(c->GetValue());
+		a->SetNumericUpDown(numericUpDown1, 0);
+		a->SetNumericUpDown(numericUpDown2, 1);
+		a->SetNumericUpDown(numericUpDown3, 2);
+		a->SetTextBox(textBox1, 0);
+		a->SetTextBox(textBox2, 1);
+		a->SetTextBox(textBox3, 2);
+		a->SetTrackBar(trackBar1, 0);
+		a->SetTrackBar(trackBar2, 1);
+		a->SetTrackBar(trackBar3, 2);
+		a->SetAllowBehavior(true, 0);
+		a->SetAllowBehavior(false, 1);
+		a->SetAllowBehavior(true, 2);
+		a->SetName('C', 2);
+		a->SetName('B', 1);
+		a->SetName('A', 0);
+		a->SetFromFile(2);
+		a->SetFromFile(1);
+		a->SetFromFile(0);
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(numericUpDown1->Value));
+		a->SetValue(Convert::ToInt32(numericUpDown1->Value), 0);
 	}
 	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(textBox1->Text));
+		try{
+			a->SetValue(Convert::ToInt32(textBox1->Text), 0);
+		} catch(System::FormatException^ e1){
+			textBox1->Text = a->GetValue(0).ToString();
+		}
 	}
 	private: System::Void trackBar1_Scroll(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(trackBar1->Value));
+		a->SetValue(Convert::ToInt32(trackBar1->Value), 0);
 	}
 	private: System::Void numericUpDown2_ValueChanged(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(numericUpDown2->Value));
+		a->SetValue(Convert::ToInt32(numericUpDown2->Value), 1);
 	}
 	private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(textBox2->Text));
+		try{
+			a->SetValue(Convert::ToInt32(textBox2->Text), 1);
+		} catch(System::FormatException^ e1){
+			textBox2->Text = a->GetValue(1).ToString();
+		}
 	}
 	private: System::Void trackBar2_Scroll(System::Object^ sender, System::EventArgs^ e){
-		b->SetValue(Convert::ToInt32(trackBar2->Value));
+		a->SetValue(Convert::ToInt32(trackBar2->Value), 1);
 	}
 	private: System::Void numericUpDown3_ValueChanged(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(numericUpDown3->Value));
+		a->SetValue(Convert::ToInt32(numericUpDown3->Value), 2);
 	}
 	private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(textBox3->Text));
+		try{
+			a->SetValue(Convert::ToInt32(textBox3->Text), 2);
+		}catch(System::FormatException^ e1){
+			textBox3->Text = a->GetValue(2).ToString();
+		}
 	}
 	private: System::Void trackBar3_Scroll(System::Object^ sender, System::EventArgs^ e){
-		c->SetValue(Convert::ToInt32(trackBar3->Value));
+		a->SetValue(Convert::ToInt32(trackBar3->Value), 2);
 	}
 	void UpdateData(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		if(sender1->GetNumericUpDown() != nullptr)
-			sender1->GetNumericUpDown()->Value = sender1->GetValue();
-		if(sender1->GetTextBox() != nullptr)
-			sender1->GetTextBox()->Text = sender1->GetValue().ToString();
-		if(sender1->GetTrackBar() != nullptr)
-			sender1->GetTrackBar()->Value = sender1->GetValue();
+		if(sender1->GetNumericUpDown(((MyEventArgs^)e)->ind) != nullptr){
+			try{
+				sender1->GetNumericUpDown(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+			} catch(System::ArgumentOutOfRangeException^ e1){
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = 0;
+			}
+		}
+		if(sender1->GetTextBox(((MyEventArgs^)e)->ind) != nullptr)
+			sender1->GetTextBox(((MyEventArgs^)e)->ind)->Text = ((MyEventArgs^)e)->value.ToString();
+		if(sender1->GetTrackBar(((MyEventArgs^)e)->ind) != nullptr){
+			try{
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+			}catch(System::ArgumentOutOfRangeException^ e1){
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = 0;
+			}
+		}
 	}
 	void UpdateMin(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		sender1->SetMin(((MyEventArgs^)e)->value);
+		MyEventArgs^ ev = (MyEventArgs^)e;
+		if(sender1->SetMin(ev->value, ev->ind+1))
+			sender1->SetValueEnd(ev->value, ev->ind);
 	}
 	void UpdateMax(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		sender1->SetMax(((MyEventArgs^)e)->value);
+		MyEventArgs^ ev = (MyEventArgs^)e;
+		if(!sender1->SetMax(ev->value, ev->ind - 1))
+			sender1->SetValueEnd(ev->value, ev->ind);
 	}
 };
 }
