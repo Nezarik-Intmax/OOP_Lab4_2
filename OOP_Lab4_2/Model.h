@@ -35,41 +35,76 @@ public:
 		name = gcnew array<char>(n);
 		allowBehavior = gcnew array<bool>(n);
 	}
-	void SetValue(int a, int ind){
-		observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-	}
-	void SetValueEnd(int a, int ind){
+	bool SetValue(int a, int ind){
+		bool res;
+		bool inRange = (ind < N - 1) ? (a <= value[ind + 1]) : true;
+		inRange = inRange && ((ind > 0) ? (a >= value[ind - 1]) : true);
+		if(inRange){
+			value[ind] = a;
+			System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
+			res = true;
+		}else if(allowBehavior[ind]){
+			if((ind < N - 1) && (a > value[ind + 1])){
+				if(SetMax(a, ind+1)){
+					value[ind] = a;
+					res = true;
+				}else{
+					res = false;
+				}
+			}
+			else if((ind > 0) && (a < value[ind - 1])){
+				if(SetMin(a, ind - 1)){
+					value[ind] = a;
+					res = true;
+				} else{
+					res = false;
+				}
+			}
+		}else{
+			res = false;
+		}
 		if(observers != nullptr)
 			observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		if(ind < N - 1 && ind > 0){
-			if(((a >= value[ind - 1]) && (a <= value[ind + 1])) || allowBehavior[ind])
-				value[ind] = a;
+		return res;
+		/*if(ind < N - 1 && ){
+			if(( && ) || allowBehavior[ind]){
+			}
 		} else if(ind < N - 1){
-			if(a <= value[ind + 1] || allowBehavior[ind])
+			if(a <= value[ind + 1] || allowBehavior[ind]){
 				value[ind] = a;
+				if(observers != nullptr)
+					observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+				System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
+				return true;
+			}
 		} else if(ind > 0){
-			if(a >= value[ind - 1] || allowBehavior[ind])
+			if(a >= value[ind - 1] || allowBehavior[ind]){
 				value[ind] = a;
-		}
-		System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
+				if(observers != nullptr)
+					observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+				System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
+				return true;
+			}
+		}else{
+			return false;
+		}*/
+	}
+	void SetValueEnd(int a, int ind){
 	}
 	void SetFromFile(int ind){
 		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name[ind].ToString() + ".txt")), ind);
 	}
 	bool SetMax(int a, int ind){
 		if(ind < N && ind >= 0)
-			if(value[ind] >= a){
-				SetValue(a, ind);
-				return true;
+			if(value[ind] < a){
+				return SetValue(a, ind);
 			}
 		return false;
 	}
 	bool SetMin(int a, int ind){
 		if(ind < N && ind >= 0)
-			if(value[ind] <= a){
-				SetValue(a, ind);
-				return true;
+			if(value[ind] > a){
+				return SetValue(a, ind);
 			}
 		return false;
 	}

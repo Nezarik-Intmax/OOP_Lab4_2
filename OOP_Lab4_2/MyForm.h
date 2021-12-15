@@ -253,7 +253,11 @@ namespace OOPLab42 {
 		a->SetValue(Convert::ToInt32(numericUpDown1->Value), 0);
 	}
 	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(textBox1->Text), 0);
+		try{
+			a->SetValue(Convert::ToInt32(textBox1->Text), 0);
+		} catch(System::FormatException^ e1){
+			textBox1->Text = a->GetValue(0).ToString();
+		}
 	}
 	private: System::Void trackBar1_Scroll(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(trackBar1->Value), 0);
@@ -262,7 +266,11 @@ namespace OOPLab42 {
 		a->SetValue(Convert::ToInt32(numericUpDown2->Value), 1);
 	}
 	private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(textBox2->Text), 1);
+		try{
+			a->SetValue(Convert::ToInt32(textBox2->Text), 1);
+		} catch(System::FormatException^ e1){
+			textBox2->Text = a->GetValue(1).ToString();
+		}
 	}
 	private: System::Void trackBar2_Scroll(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(trackBar2->Value), 1);
@@ -271,19 +279,33 @@ namespace OOPLab42 {
 		a->SetValue(Convert::ToInt32(numericUpDown3->Value), 2);
 	}
 	private: System::Void textBox3_TextChanged(System::Object^ sender, System::EventArgs^ e){
-		a->SetValue(Convert::ToInt32(textBox3->Text), 2);
+		try{
+			a->SetValue(Convert::ToInt32(textBox3->Text), 2);
+		}catch(System::FormatException^ e1){
+			textBox3->Text = a->GetValue(2).ToString();
+		}
 	}
 	private: System::Void trackBar3_Scroll(System::Object^ sender, System::EventArgs^ e){
 		a->SetValue(Convert::ToInt32(trackBar3->Value), 2);
 	}
 	void UpdateData(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
-		if(sender1->GetNumericUpDown(((MyEventArgs^)e)->ind) != nullptr)
-			sender1->GetNumericUpDown(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+		if(sender1->GetNumericUpDown(((MyEventArgs^)e)->ind) != nullptr){
+			try{
+				sender1->GetNumericUpDown(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+			} catch(System::ArgumentOutOfRangeException^ e1){
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = 0;
+			}
+		}
 		if(sender1->GetTextBox(((MyEventArgs^)e)->ind) != nullptr)
 			sender1->GetTextBox(((MyEventArgs^)e)->ind)->Text = ((MyEventArgs^)e)->value.ToString();
-		if(sender1->GetTrackBar(((MyEventArgs^)e)->ind) != nullptr)
-			sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+		if(sender1->GetTrackBar(((MyEventArgs^)e)->ind) != nullptr){
+			try{
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = ((MyEventArgs^)e)->value;
+			}catch(System::ArgumentOutOfRangeException^ e1){
+				sender1->GetTrackBar(((MyEventArgs^)e)->ind)->Value = 0;
+			}
+		}
 	}
 	void UpdateMin(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
