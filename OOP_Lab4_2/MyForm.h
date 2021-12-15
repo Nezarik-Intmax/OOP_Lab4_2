@@ -288,14 +288,14 @@ namespace OOPLab42 {
 	void UpdateMin(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
 		MyEventArgs^ ev = (MyEventArgs^)e;
-		if(!sender1->SetMin(ev->value, ev->ind+1))
-			sender1->SetValue(sender1->GetValue(ev->ind+1),ev->ind);
+		if(sender1->SetMin(ev->value, ev->ind+1))
+			sender1->SetValueEnd(ev->value, ev->ind);
 	}
 	void UpdateMax(System::Object^ sender, System::EventArgs^ e){
 		MyModel^ sender1 = (MyModel^)sender;
 		MyEventArgs^ ev = (MyEventArgs^)e;
 		if(!sender1->SetMax(ev->value, ev->ind - 1))
-			sender1->SetValue(sender1->GetValue(ev->ind + 1), ev->ind);
+			sender1->SetValueEnd(ev->value, ev->ind);
 	}
 };
 }

@@ -36,27 +36,29 @@ public:
 		allowBehavior = gcnew array<bool>(n);
 	}
 	void SetValue(int a, int ind){
-		if (ind < N-1 && ind > 0){
-			if(((a >= value[ind-1])&&(a <= value[ind + 1]))||allowBehavior[ind])
+		observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+		observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+	}
+	void SetValueEnd(int a, int ind){
+		if(observers != nullptr)
+			observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
+		if(ind < N - 1 && ind > 0){
+			if(((a >= value[ind - 1]) && (a <= value[ind + 1])) || allowBehavior[ind])
 				value[ind] = a;
-		}else if(ind < N-1){
+		} else if(ind < N - 1){
 			if(a <= value[ind + 1] || allowBehavior[ind])
 				value[ind] = a;
 		} else if(ind > 0){
 			if(a >= value[ind - 1] || allowBehavior[ind])
 				value[ind] = a;
 		}
-		if(observers != nullptr)
-			observers->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		observerMin->Invoke(this, gcnew MyEventArgs(value[ind], ind));
-		observerMax->Invoke(this, gcnew MyEventArgs(value[ind], ind));
 		System::IO::File::WriteAllText(name[ind].ToString() + ".txt", value[ind].ToString());
 	}
 	void SetFromFile(int ind){
 		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name[ind].ToString() + ".txt")), ind);
 	}
 	bool SetMax(int a, int ind){
-		if(ind < N - 1 && ind > 0)
+		if(ind < N && ind >= 0)
 			if(value[ind] >= a){
 				SetValue(a, ind);
 				return true;
@@ -64,7 +66,7 @@ public:
 		return false;
 	}
 	bool SetMin(int a, int ind){
-		if(ind < N - 1 && ind > 0)
+		if(ind < N && ind >= 0)
 			if(value[ind] <= a){
 				SetValue(a, ind);
 				return true;
