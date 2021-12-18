@@ -9,68 +9,60 @@ public:
 	int value;
 	MyEventArgs(int value):value(value){}
 };
-
 ref class MyModel{
 private:
-	int value, maxV, minV;
-	char name;
-	bool allowBehavior;
-	FILE* f;
-	System::Windows::Forms::NumericUpDown^ numericUpDown;
-	System::Windows::Forms::TextBox^ textBox;
-	System::Windows::Forms::TrackBar^ trackBar;
+	int a, b, c;
 public:
 	System::EventHandler^ observers;
-	System::EventHandler^ observerMin;
-	System::EventHandler^ observerMax;
-	MyModel^ observersMin;
-	MyModel^ observersMax;
-	MyModel():value(0), minV(0), maxV(100), allowBehavior(true){}
-	MyModel(char name, bool ab, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):name(name), minV(0), maxV(100), allowBehavior(ab){
-		numericUpDown = num;
-		textBox = txt;
-		trackBar = trck;
-		SetValue(Convert::ToInt32(System::IO::File::ReadAllText(name.ToString() + ".txt")));
+	MyModel(){
+		if(System::IO::File::Exists("c.txt"))
+			SetValueC(Convert::ToInt32(System::IO::File::ReadAllText("c.txt")));
+		else System::IO::File::WriteAllText("c.txt", "0");
+		if(System::IO::File::Exists("b.txt"))
+			SetValueB(Convert::ToInt32(System::IO::File::ReadAllText("b.txt")));
+		else System::IO::File::WriteAllText("b.txt", "0");
+		if(System::IO::File::Exists("a.txt"))
+			SetValueA(Convert::ToInt32(System::IO::File::ReadAllText("a.txt")));
+		else System::IO::File::WriteAllText("a.txt", "0");
 	}
-	MyModel(char name, int value, int minV, int maxV, System::Windows::Forms::NumericUpDown^ num, System::Windows::Forms::TextBox^ txt, System::Windows::Forms::TrackBar^ trck):value(value), minV(minV), maxV(maxV), name(name), allowBehavior(true){
-		numericUpDown = num;
-		textBox = txt;
-		trackBar = trck;
-	}
-	void SetValue(int a){
-		if((a >= minV)&&(a <= maxV)||allowBehavior)
-			value = a;
+	void SetValueA(int val){
+		if(val >= 0 && val <=100){
+			a = val;
+			if(val > c)
+				SetValueC(val);
+			if(val > b)
+				SetValueB(val);
+			System::IO::File::WriteAllText("a.txt", a.ToString());
+		}
 		if(observers != nullptr)
 			observers->Invoke(this, nullptr);
-		if(observersMax != nullptr)
-			observerMin->Invoke(observersMax, gcnew MyEventArgs(value));
-		if(observersMin != nullptr)
-			observerMax->Invoke(observersMin, gcnew MyEventArgs(value));
-		name.ToString();
-		System::IO::File::WriteAllText(name.ToString() + ".txt", value.ToString());
-
 	}
-	void SetMax(int a){
-		maxV = a;
-		if(value > maxV)
-			SetValue(maxV);
+	void SetValueB(int val){
+		if(val >= 0 && val <= 100){
+			if((val >= a) && (val <= c))
+				b = val;
+			System::IO::File::WriteAllText("b.txt", b.ToString());
+		}
+		if(observers != nullptr)
+			observers->Invoke(this, nullptr);
 	}
-	void SetMin(int a){
-		minV = a;
-		if(value < minV)
-			SetValue(minV);
+	void SetValueC(int val){
+		if(val >= 0 && val <= 100){
+			c = val;
+			if(val < a)
+				SetValueA(val);
+			if(val < b)
+				SetValueB(val);
+			System::IO::File::WriteAllText("c.txt", c.ToString());
+		}
+		if(observers != nullptr)
+			observers->Invoke(this, nullptr);
 	}
-	void SetNumericUpDown(System::Windows::Forms::NumericUpDown^ num){
-		this->numericUpDown = num;
+	void UpdateData(){
+		if(observers != nullptr)
+			observers->Invoke(this, nullptr);
 	}
-	void SetTextBox(System::Windows::Forms::TextBox^ txt){
-		this->textBox = txt;
-	}
-	void SetTrackBar(System::Windows::Forms::TrackBar^ trackBar){
-		this->trackBar = trackBar;
-	}
-	int GetValue(){return value;}
-	System::Windows::Forms::NumericUpDown^ GetNumericUpDown(){return this->numericUpDown;}
-	System::Windows::Forms::TextBox^ GetTextBox(){return this->textBox;}
-	System::Windows::Forms::TrackBar^ GetTrackBar(){return this->trackBar;}
+	int GetValueA(){return a;}
+	int GetValueB(){ return b; }
+	int GetValueC(){ return c; }
 };
